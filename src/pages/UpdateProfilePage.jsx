@@ -1,3 +1,5 @@
+import { useRef, useState } from "react";
+import { useRecoilState } from "recoil";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import {
   Button,
@@ -13,9 +15,7 @@ import {
   InputGroup,
   InputRightElement,
 } from "@chakra-ui/react";
-import { useRef, useState } from "react";
 
-import { useRecoilState } from "recoil";
 import userAtom from "../atoms/userAtom";
 import usePreviewImg from "../hooks/usePreviewImg";
 import useShowToast from "../hooks/useShowToast";
@@ -30,6 +30,7 @@ export default function UpdateProfilePage() {
     bio: user.bio,
     password: "",
   });
+  const [updating, setUpdating] = useState(false);
 
   const fileRef = useRef(null);
 
@@ -40,6 +41,8 @@ export default function UpdateProfilePage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (updating) return;
+    setUpdating(true);
     try {
       const res = await fetch(`/api/users/update/${user._id}`, {
         method: "PUT",
@@ -58,8 +61,11 @@ export default function UpdateProfilePage() {
       localStorage.setItem("user-threads", JSON.stringify(data));
     } catch (error) {
       showToast("Error", error, "error");
+    } finally {
+      setUpdating(false);
     }
   };
+
   return (
     <form onSubmit={handleSubmit}>
       <Flex align={"center"} justify={"center"} my={6}>
@@ -75,6 +81,8 @@ export default function UpdateProfilePage() {
           <Heading lineHeight={1.1} fontSize={{ base: "2xl", sm: "3xl" }}>
             User Profile Edit
           </Heading>
+
+          {/* avatar */}
           <FormControl id="userName">
             <Stack direction={["column", "row"]} spacing={6}>
               <Center>
@@ -97,6 +105,8 @@ export default function UpdateProfilePage() {
               </Center>
             </Stack>
           </FormControl>
+
+          {/* form */}
           <FormControl>
             <FormLabel>Full name</FormLabel>
             <Input
@@ -184,6 +194,8 @@ export default function UpdateProfilePage() {
               </InputRightElement>
             </InputGroup>
           </FormControl>
+
+          {/* button  */}
           <Stack spacing={6} direction={["column", "row"]}>
             <Button
               bg={"red.400"}
@@ -203,6 +215,7 @@ export default function UpdateProfilePage() {
                 bg: "green.500",
               }}
               type="submit"
+              isLoading={updating}
             >
               Submit
             </Button>
