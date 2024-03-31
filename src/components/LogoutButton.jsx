@@ -3,6 +3,7 @@ import React from "react";
 import { useSetRecoilState } from "recoil";
 import userAtom from "../atoms/userAtom";
 import useShowToast from "../hooks/useShowToast";
+import { FiLogOut } from "react-icons/fi";
 
 const LogoutButton = () => {
   const setUser = useSetRecoilState(userAtom);
@@ -16,14 +17,15 @@ const LogoutButton = () => {
           "Content-Type": "application/json",
         },
       });
-      const data = await (await res).json();
-      console.log(data);
+      const data = await res.json();
 
       if (data.error) {
         showToast("Error", data.error, "error");
         return;
       }
       setUser(null);
+
+      showToast("Successfully", "Logout Success", "success");
     } catch (error) {
       console.log(error);
     }
@@ -36,7 +38,7 @@ const LogoutButton = () => {
       size={"sm"}
       onClick={handleLogout}
     >
-      Logout
+      <FiLogOut size={20} />
     </Button>
   );
 };

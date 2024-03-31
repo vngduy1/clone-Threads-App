@@ -2,7 +2,9 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
 import "./index.css";
-import { ChakraProvider, ColorModeScript, extendTheme } from "@chakra-ui/react";
+import { ChakraProvider } from "@chakra-ui/react";
+import { extendTheme } from "@chakra-ui/theme-utils";
+import { ColorModeScript } from "@chakra-ui/color-mode";
 import { mode } from "@chakra-ui/theme-tools";
 import { BrowserRouter } from "react-router-dom";
 import { RecoilRoot } from "recoil";
@@ -24,7 +26,7 @@ const config = {
 const colors = {
   gray: {
     light: "#616161",
-    dark: "#1a1a1a",
+    dark: "#1e1e1e",
   },
 };
 
