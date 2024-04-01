@@ -9,7 +9,7 @@ const UserPost = ({ postImg, postTitle, likes, replies }) => {
   return (
     <Link to={"/markzuckerberg/post/1"}>
       <Flex gap={3} mb={4} py={5}>
-        <Flex flexDirection={"column"} alignItems={"cen]"}>
+        <Flex flexDirection={"column"} alignItems={"center"}>
           <Avatar size={"md"} name="Mark Zuckerberg" src="/zuck-avatar.png" />
           <Box w={"1px"} h={"full"} bg={"gray.light"} my={2}></Box>
           <Box position={"relative"} w={"full"}>
@@ -19,7 +19,7 @@ const UserPost = ({ postImg, postTitle, likes, replies }) => {
               src="https://bit.ly/dan-abramov"
               position={"absolute"}
               top={"0px"}
-              left="-11px"
+              left="15px"
               padding={"2px"}
             />
             <Avatar
@@ -28,7 +28,7 @@ const UserPost = ({ postImg, postTitle, likes, replies }) => {
               src="https://bit.ly/sage-adebayo"
               position={"absolute"}
               bottom={"0px"}
-              left="0px"
+              right="-5px"
               padding={"2px"}
             />
             <Avatar
@@ -37,7 +37,7 @@ const UserPost = ({ postImg, postTitle, likes, replies }) => {
               src="https://bit.ly/prosper-baba"
               position={"absolute"}
               bottom={"0px"}
-              left="-20px"
+              left="4px"
               padding={"2px"}
             />
           </Box>
