@@ -5,6 +5,7 @@ import { AiFillHome } from "react-icons/ai";
 import { RxAvatar } from "react-icons/rx";
 import { Link as RouterLink } from "react-router-dom";
 import { FiLogOut } from "react-icons/fi";
+import { BsFillChatQuoteFill } from "react-icons/bs";
 import useLogout from "../hooks/useLogout";
 import authScreenAtom from "../atoms/authAtom";
 
@@ -41,6 +42,9 @@ const Header = () => {
         <Flex alignItems={"center"} gap={4}>
           <Link as={RouterLink} to={`/${user.username}`}>
             <RxAvatar size={24} />
+          </Link>
+          <Link as={RouterLink} to={"/chat"}>
+            <BsFillChatQuoteFill size={24} />
           </Link>
           <Button size={"xs"} onClick={logout}>
             <FiLogOut size={20} />
