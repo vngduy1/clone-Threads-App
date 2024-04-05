@@ -19,6 +19,7 @@ import {
   selectedConversationAtom,
 } from "../atoms/messagesAtom";
 import userAtom from "../atoms/userAtom";
+import { useSocket } from "../context/SocketContext";
 
 const MessageContainer = () => {
   const showToast = useShowToast();
@@ -28,6 +29,39 @@ const MessageContainer = () => {
   const [loadingMessages, setLoadingMessages] = useState(true);
   const [messages, setMessages] = useState([]);
   const currentUser = useRecoilValue(userAtom);
+  const { socket } = useSocket();
+  const setConversations = useSetRecoilState(conversationsAtom);
+  const messageEndRef = useRef();
+
+  useEffect(() => {
+    socket.on("newMessage", (message) => {
+      console.log(message);
+      if (selectedConversation._id === message.conversationId)
+        setMessages((prev) => [...prev, message]);
+      console.log(selectedConversation);
+      setConversations((prev) => {
+        const updateConversations = prev.map((conversation) => {
+          if (conversation._id === message.conversationId) {
+            return {
+              ...conversation,
+              lastMessage: {
+                text: message.text,
+                sender: message.sender,
+              },
+            };
+          }
+          return conversation;
+        });
+        return updateConversations;
+      });
+    });
+
+    return () => socket.off("newMessage");
+  }, [socket]);
+
+  useEffect(() => {
+    messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   useEffect(() => {
     setLoadingMessages(true);
@@ -36,6 +70,7 @@ const MessageContainer = () => {
       setLoadingMessages(true);
       setMessages([]);
       try {
+        if (selectedConversation.mock) return;
         const res = await fetch(`/api/messages/${selectedConversation.userId}`);
         const data = await res.json();
         if (data.error) {
@@ -103,11 +138,20 @@ const MessageContainer = () => {
 
         {!loadingMessages &&
           messages.map((message) => (
-            <Message
+            <Flex
               key={message._id}
-              message={message}
-              ownMessage={currentUser._id === message.sender}
-            />
+              direction={"column"}
+              ref={
+                messages.length - 1 === messages.indexOf(message)
+                  ? messageEndRef
+                  : null
+              }
+            >
+              <Message
+                message={message}
+                ownMessage={currentUser._id === message.sender}
+              />
+            </Flex>
           ))}
       </Flex>
 
