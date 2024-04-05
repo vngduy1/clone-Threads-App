@@ -15,19 +15,26 @@ import { GiConversation } from "react-icons/gi";
 import Conversation from "../components/Conversation";
 import MessageContainer from "../components/MessageContainer";
 import useShowToast from "../hooks/useShowToast";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import {
   conversationsAtom,
   selectedConversationAtom,
 } from "../atoms/messagesAtom";
+import userAtom from "../atoms/userAtom";
+import { useSocket } from "../context/SocketContext";
 
 const ChatPage = () => {
   const showToast = useShowToast();
   const [loadingConversations, setLoadingConversations] = useState(true);
+  const [searchText, setSearchText] = useState("");
+  const [searchingUser, setSearchingUser] = useState(false);
+
   const [conversations, setConversations] = useRecoilState(conversationsAtom);
   const [selectedConversation, setSelectedConversation] = useRecoilState(
     selectedConversationAtom
   );
+  const currentUser = useRecoilValue(userAtom);
+  const { socket, onlineUsers } = useSocket();
 
   useEffect(() => {
     const getConversations = async () => {
@@ -48,6 +55,63 @@ const ChatPage = () => {
 
     getConversations();
   }, [showToast, setConversations]);
+
+  const handleConversationSearch = async (e) => {
+    e.preventDefault();
+    setSearchingUser(true);
+    try {
+      const res = await fetch(`/api/users/profile/${searchText}`);
+      const searchedUser = await res.json();
+      if (searchedUser.error) {
+        showToast("Error", searchedUser.error, "error");
+        return;
+      }
+
+      // if user is trying to message themselves
+      const messagingYourself = searchedUser._id === currentUser._id;
+      if (messagingYourself) {
+        showToast("Error", "You cannot message yourself", "error");
+        return;
+      }
+
+      // If user is already in a conversation with the searched user
+      const conversationAlreadyExists = conversations.find(
+        (conversation) => conversation.participants[0]._id === searchedUser._id
+      );
+
+      if (conversationAlreadyExists) {
+        setSelectedConversation({
+          _id: conversationAlreadyExists._id,
+          userId: searchedUser._id,
+          username: searchedUser.username,
+          userProfilePic: searchedUser.userProfilePic,
+        });
+        return;
+      }
+
+      const mockConversation = {
+        mock: true,
+        lastMessage: {
+          text: "",
+          sender: "",
+        },
+        _id: Date.now(),
+        participants: [
+          {
+            _id: searchedUser._id,
+            username: searchedUser.username,
+            userProfilePic: searchedUser.userProfilePic,
+          },
+        ],
+      };
+
+      setConversations((prev) => [...prev, mockConversation]);
+    } catch (error) {
+      showToast("Error", error.message, "error");
+    } finally {
+      setSearchingUser(false);
+    }
+  };
 
   return (
     <Box
@@ -85,10 +149,18 @@ const ChatPage = () => {
           >
             Your Conversations
           </Text>
-          <form>
+          <form onSubmit={handleConversationSearch}>
             <Flex alignItems={"center"} gap={2}>
-              <Input placeholder="Search for a user" />
-              <Button size={"sm"}>
+              <Input
+                placeholder="Search for a user"
+                onChange={(e) => setSearchText(e.target.value)}
+                value={searchText}
+              />
+              <Button
+                size={"sm"}
+                onClick={handleConversationSearch}
+                isLoading={searchingUser}
+              >
                 <SearchIcon />
               </Button>
             </Flex>
@@ -117,6 +189,9 @@ const ChatPage = () => {
             conversations.map((conversation) => (
               <Conversation
                 key={conversation._id}
+                isOnline={onlineUsers.includes(
+                  conversation.participants[0]._id
+                )}
                 conversation={conversation}
               />
             ))}
