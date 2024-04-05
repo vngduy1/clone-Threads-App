@@ -11,11 +11,11 @@ import {
   useColorModeValue,
 } from "@chakra-ui/react";
 import { GiConversation } from "react-icons/gi";
+import { useRecoilState, useRecoilValue } from "recoil";
 
 import Conversation from "../components/Conversation";
 import MessageContainer from "../components/MessageContainer";
 import useShowToast from "../hooks/useShowToast";
-import { useRecoilState, useRecoilValue } from "recoil";
 import {
   conversationsAtom,
   selectedConversationAtom,
@@ -35,6 +35,26 @@ const ChatPage = () => {
   );
   const currentUser = useRecoilValue(userAtom);
   const { socket, onlineUsers } = useSocket();
+
+  useEffect(() => {
+    socket?.on("messagesSeen", ({ conversationId }) => {
+      setConversations((prev) => {
+        const updatedConversations = prev.map((conversation) => {
+          if (conversation._id === conversationId) {
+            return {
+              ...conversation,
+              lastMessage: {
+                ...conversation.lastMessage,
+                seen: true,
+              },
+            };
+          }
+          return conversation;
+        });
+        return updatedConversations;
+      });
+    });
+  }, [socket, setConversations]);
 
   useEffect(() => {
     const getConversations = async () => {
