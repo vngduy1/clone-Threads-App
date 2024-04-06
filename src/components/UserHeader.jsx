@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Box, Flex, Link, Text, VStack } from "@chakra-ui/layout";
 import {
   Avatar,
@@ -16,17 +15,12 @@ import { useRecoilValue } from "recoil";
 import { Link as RouterLink } from "react-router-dom";
 
 import userAtom from "../atoms/userAtom";
-import useShowToast from "../hooks/useShowToast";
+import useFollowUnFollow from "../hooks/useFollowUnFollow";
 
 const UserHeader = ({ user }) => {
   const toast = useToast();
   const currentUser = useRecoilValue(userAtom); //logged in user
-  const [following, setFollowing] = useState(
-    user.followers.includes(currentUser?._id)
-  );
-  const [updating, setUpdating] = useState(false);
-
-  const showToast = useShowToast();
+  const { handleFollowUnfollow, following, updating } = useFollowUnFollow(user);
 
   //copy link func
   const copyUrl = () => {
@@ -51,45 +45,6 @@ const UserHeader = ({ user }) => {
           isClosable: true,
         });
       });
-  };
-
-  const handleFollowUnfollow = async () => {
-    if (!currentUser) {
-      showToast("Error", "Please login to follow", "error");
-      return;
-    }
-
-    if (updating) return;
-
-    setUpdating(true);
-
-    try {
-      const res = await fetch(`/api/users/follow/${user._id}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      const data = await res.json();
-      if (data.error) {
-        showToast("Error", data.error, "error");
-        return;
-      }
-
-      if (following) {
-        showToast("Success", `unFollowed ${user.name}`, "success");
-        user.followers.pop();
-      } else {
-        showToast("Success", `Followed ${user.name}`, "success");
-        user.followers.push(currentUser?._id);
-      }
-
-      setFollowing(!following);
-    } catch (error) {
-      showToast("Error", error, "error");
-    } finally {
-      setUpdating(false);
-    }
   };
 
   return (
