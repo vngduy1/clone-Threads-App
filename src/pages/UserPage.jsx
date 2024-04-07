@@ -1,24 +1,27 @@
 import { useEffect, useState } from "react";
-import UserHeader from "../components/UserHeader";
+import { useRecoilState } from "recoil";
 import { useParams } from "react-router-dom";
-import useShowToast from "../hooks/useShowToast";
 import { Flex, Spinner } from "@chakra-ui/react";
 
+import UserHeader from "../components/UserHeader";
 import Post from "../components/Post";
+import useShowToast from "../hooks/useShowToast";
 import useGetUserProfile from "../hooks/useGetUserProfile";
-import { useRecoilState } from "recoil";
 import postsAtom from "../atoms/postsAtom";
 
 const UserPage = () => {
+  const [posts, setPosts] = useRecoilState(postsAtom);
   const { user, loading } = useGetUserProfile();
   const { username } = useParams();
-  const showToast = useShowToast();
-  const [posts, setPosts] = useRecoilState(postsAtom);
   const [fetchingPosts, setFetchingPosts] = useState(true);
+  const showToast = useShowToast();
 
   useEffect(() => {
     const getPosts = async () => {
+      if (!user) return;
+
       setFetchingPosts(true);
+
       try {
         const res = await fetch(`/api/posts/user/${username}`);
         const data = await res.json();
@@ -27,6 +30,7 @@ const UserPage = () => {
           showToast("Error", data.error, "error");
           return;
         }
+
         setPosts(data);
       } catch (error) {
         showToast("Error", error, "error");
@@ -36,7 +40,7 @@ const UserPage = () => {
       }
     };
     getPosts();
-  }, [username, showToast, setPosts]);
+  }, [username, showToast, setPosts, user]);
 
   if (!user && loading) {
     return (
@@ -52,6 +56,7 @@ const UserPage = () => {
     <>
       <UserHeader user={user} />
       {!fetchingPosts && posts.length === 0 && <h1>User has not posts.</h1>}
+
       {fetchingPosts && (
         <Flex justifyContent={"center"} my={12}>
           <Spinner size={"xl"} />
