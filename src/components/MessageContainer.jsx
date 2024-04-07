@@ -20,23 +20,30 @@ import {
 } from "../atoms/messagesAtom";
 import userAtom from "../atoms/userAtom";
 import { useSocket } from "../context/SocketContext";
+import messageSound from "../assets/sounds/message.mp3";
 
 const MessageContainer = () => {
-  const showToast = useShowToast();
+  const setConversations = useSetRecoilState(conversationsAtom);
+  const { socket } = useSocket();
+  const messageEndRef = useRef();
   const selectedConversation = useRecoilValue(selectedConversationAtom);
+
   const [loadingMessages, setLoadingMessages] = useState(true);
   const [messages, setMessages] = useState([]);
   const currentUser = useRecoilValue(userAtom);
-  const { socket } = useSocket();
-  const setConversations = useSetRecoilState(conversationsAtom);
-  const messageEndRef = useRef();
+
+  const showToast = useShowToast();
 
   useEffect(() => {
     socket.on("newMessage", (message) => {
-      console.log(message);
       if (selectedConversation._id === message.conversationId)
         setMessages((prev) => [...prev, message]);
-      console.log(selectedConversation);
+
+      if (!document.hasFocus) {
+        const sound = new Audio(messageSound);
+        sound.play();
+      }
+
       setConversations((prev) => {
         const updateConversations = prev.map((conversation) => {
           if (conversation._id === message.conversationId) {
@@ -48,8 +55,10 @@ const MessageContainer = () => {
               },
             };
           }
+
           return conversation;
         });
+
         return updateConversations;
       });
     });

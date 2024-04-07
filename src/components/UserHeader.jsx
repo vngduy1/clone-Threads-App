@@ -52,10 +52,10 @@ const UserHeader = ({ user }) => {
       <Flex justifyContent={"space-between"} w={"full"}>
         <Box>
           <Text fontSize={"2xl"} fontWeight={"bold"}>
-            {user.name}
+            {user?.name}
           </Text>
           <Flex gap={2} alignItems={"center"}>
-            <Text fontSize={"sm"}>{user.username} </Text>
+            <Text fontSize={"sm"}>{user?.username} </Text>
             <Text
               fontSize={{
                 base: "xs",
@@ -72,10 +72,10 @@ const UserHeader = ({ user }) => {
           </Flex>
         </Box>
         <Box>
-          {user.profilePic ? (
+          {user?.profilePic ? (
             <Avatar
-              name={user.name}
-              src={user.profilePic}
+              name={user?.name}
+              src={user?.profilePic}
               size={{
                 base: "md",
                 md: "xl",
@@ -83,7 +83,7 @@ const UserHeader = ({ user }) => {
             />
           ) : (
             <Avatar
-              name={user.name}
+              name={user?.name}
               src="https://bit.ly/ryan-florence"
               size={{
                 base: "md",
@@ -94,10 +94,10 @@ const UserHeader = ({ user }) => {
         </Box>
       </Flex>
 
-      <Text>{user.bio} </Text>
+      <Text>{user?.bio} </Text>
 
       {/* follow */}
-      {currentUser?._id === user._id ? (
+      {currentUser?._id === user?._id ? (
         <Link as={RouterLink} to="/update">
           <Button size={"sm"}>Update Profile</Button>
         </Link>
@@ -109,7 +109,7 @@ const UserHeader = ({ user }) => {
 
       <Flex w={"full"} justifyContent={"space-between"}>
         <Flex gap={2} alignItems={"center"}>
-          <Text color={"gray.light"}>{user.followers.length} followers</Text>
+          <Text color={"gray.light"}>{user?.followers.length} followers</Text>
           <Box w={1} h={"1"} bg={"gray.light"} borderRadius={"full"}></Box>
           <Link color={"gray.light"}>instagram.com</Link>
         </Flex>

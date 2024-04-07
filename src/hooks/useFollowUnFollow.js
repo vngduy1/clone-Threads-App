@@ -7,7 +7,7 @@ import userAtom from "../atoms/userAtom";
 const useFollowUnFollow = (user) => {
   const currentUser = useRecoilValue(userAtom);
   const [following, setFollowing] = useState(
-    user.followers.includes(currentUser?._id)
+    user?.followers.includes(currentUser?._id)
   );
   const [updating, setUpdating] = useState(false);
   const showToast = useShowToast();
